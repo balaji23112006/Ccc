@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AntiGravity TSP Solver — Conquer the Travelling Salesman Problem</title>
+  <meta name="description" content="A futuristic TSP solver using dynamic programming to find the optimal Hamiltonian cycle through nodes in space." />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Stars canvas -->
+  <canvas id="starfield"></canvas>
+
+  <!-- Floating nodes / planets canvas -->
+  <canvas id="nodes-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav id="navbar">
+    <div class="nav-brand">
+      <span class="brand-icon">◈</span>
+      <span class="brand-text">ANTIGRAVITY</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About TSP</a></li>
+      <li><a href="#approach">DP Approach</a></li>
+      <li><a href="#features">Features</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">✦ QUANTUM OPTIMISATION ENGINE</div>
+      <h1 class="hero-title">
+        <span class="title-line">TRAVELLING</span>
+        <span class="title-line gradient-text">SALESMAN</span>
+        <span class="title-line">SOLVER</span>
+      </h1>
+      <p class="hero-subtitle">
+        Navigate the cosmos of combinatorial optimisation. Our solver harnesses the power of
+        <strong>dynamic programming</strong> to chart the shortest Hamiltonian cycle through
+        every node in the graph — no matter how vast the search space.
+      </p>
+      <div class="hero-actions">
+        <button id="launch-btn" class="btn-launch" onclick="launchSolver()">
+          <span class="btn-icon">⚡</span>
+          <span>Launch Solver</span>
+          <span class="btn-ring"></span>
+        </button>
+        <a href="#about" class="btn-ghost">Learn More ↓</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value" id="stat-nodes">0</span>
+          <span class="stat-label">Nodes Solved</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="stat-time">0ms</span>
+          <span class="stat-label">Avg Solve Time</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value">O(n²·2ⁿ)</span>
+          <span class="stat-label">Time Complexity</span>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="scroll-dot"></div>
+    </div>
+  </section>
+
+  <!-- About TSP -->
+  <section id="about">
+    <div class="section-container">
+      <div class="section-tag">// PROBLEM DEFINITION</div>
+      <h2 class="section-title">What is the <span class="gradient-text">Travelling Salesman Problem?</span></h2>
+      <div class="about-grid">
+        <div class="about-card glass-card">
+          <div class="card-icon">🌐</div>
+          <h3>The Problem</h3>
+          <p>
+            Given a set of <strong>n cities</strong> and the distances between every pair,
+            find the <em>shortest possible route</em> that visits each city exactly once and
+            returns to the starting city. This closed loop is called a
+            <strong>Hamiltonian cycle</strong>.
+          </p>
+        </div>
+        <div class="about-card glass-card">
+          <div class="card-icon">🔥</div>
+          <h3>Why It's Hard</h3>
+          <p>
+            TSP is <strong>NP-hard</strong> — a brute-force search requires evaluating
+            <em>(n−1)!/2</em> possible tours. For just 20 cities that's over
+            <strong>60 quadrillion</strong> routes. Smart algorithms are essential.
+          </p>
+        </div>
+        <div class="about-card glass-card">
+          <div class="card-icon">🚀</div>
+          <h3>Real-World Impact</h3>
+          <p>
+            From <strong>logistics and delivery routing</strong> to
+            <strong>circuit board drilling</strong> and <strong>genome sequencing</strong>,
+            TSP appears everywhere. Solving it efficiently saves time, fuel, and resources.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DP Approach -->
+  <section id="approach">
+    <div class="section-container">
+      <div class="section-tag">// ALGORITHM</div>
+      <h2 class="section-title">Dynamic Programming <span class="gradient-text">Held-Karp</span> Approach</h2>
+
+      <div class="approach-layout">
+        <div class="approach-steps">
+          <div class="step glass-card">
+            <div class="step-number">01</div>
+            <div class="step-content">
+              <h3>State Representation</h3>
+              <p>
+                Define <code>dp[S][i]</code> as the minimum cost to visit all cities in the
+                subset <strong>S</strong>, ending at city <strong>i</strong>. The subset S is
+                encoded as a <em>bitmask</em> of n bits.
+              </p>
+            </div>
+          </div>
+          <div class="step glass-card">
+            <div class="step-number">02</div>
+            <div class="step-content">
+              <h3>Base Case</h3>
+              <p>
+                <code>dp[{0}][0] = 0</code> — start at city 0 with zero cost.
+                All other states are initialised to <strong>∞</strong>.
+              </p>
+            </div>
+          </div>
+          <div class="step glass-card">
+            <div class="step-number">03</div>
+            <div class="step-content">
+              <h3>Transition</h3>
+              <p>
+                For each subset S and each city j ∈ S, try extending from every city i ∈ S
+                where i ≠ j:<br />
+                <code>dp[S][j] = min(dp[S \ {j}][i] + dist[i][j])</code>
+              </p>
+            </div>
+          </div>
+          <div class="step glass-card">
+            <div class="step-number">04</div>
+            <div class="step-content">
+              <h3>Answer</h3>
+              <p>
+                The optimal tour cost is
+                <code>min over all i of (dp[ALL][i] + dist[i][0])</code>,
+                closing the cycle back to the origin.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="approach-code glass-card">
+          <div class="code-header">
+            <span class="code-dot red"></span>
+            <span class="code-dot yellow"></span>
+            <span class="code-dot green"></span>
+            <span class="code-title">held_karp.py</span>
+          </div>
+          <pre><code><span class="kw">def</span> <span class="fn">tsp_dp</span>(dist):
+    n = <span class="fn">len</span>(dist)
+    ALL = (<span class="num">1</span> << n) - <span class="num">1</span>
+    dp = [[<span class="num">float</span>(<span class="str">'inf'</span>)] * n
+          <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span> << n)]
+    dp[<span class="num">1</span>][<span class="num">0</span>] = <span class="num">0</span>
+
+    <span class="kw">for</span> S <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span> << n):
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(n):
+            <span class="kw">if not</span> (S >> j & <span class="num">1</span>):
+                <span class="kw">continue</span>
+            <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n):
+                <span class="kw">if</span> i == j:
+                    <span class="kw">continue</span>
+                <span class="kw">if not</span> (S >> i & <span class="num">1</span>):
+                    <span class="kw">continue</span>
+                prev = S ^ (<span class="num">1</span> << j)
+                dp[S][j] = <span class="fn">min</span>(
+                    dp[S][j],
+                    dp[prev][i] + dist[i][j]
+                )
+
+    <span class="kw">return</span> <span class="fn">min</span>(
+        dp[ALL][i] + dist[i][<span class="num">0</span>]
+        <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n)
+    )</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="section-container">
+      <div class="section-tag">// CAPABILITIES</div>
+      <h2 class="section-title">Solver <span class="gradient-text">Features</span></h2>
+      <div class="features-grid">
+        <div class="feature-card glass-card">
+          <div class="feature-icon">⬡</div>
+          <h3>Exact Solution</h3>
+          <p>Guaranteed optimal tour via Held-Karp DP — no heuristics, no approximations.</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">◎</div>
+          <h3>Bitmask Encoding</h3>
+          <p>Efficient subset representation using bitmasks for lightning-fast state transitions.</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">△</div>
+          <h3>Path Reconstruction</h3>
+          <p>Trace back the optimal tour to visualise the exact route through every node.</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">◇</div>
+          <h3>Visual Graph</h3>
+          <p>Interactive canvas rendering of nodes and edges with real-time animation of the solution.</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">⏣</div>
+          <h3>Up to 20 Nodes</h3>
+          <p>Handles graphs up to 20 cities comfortably within browser memory constraints.</p>
+        </div>
+        <div class="feature-card glass-card">
+          <div class="feature-icon">⊛</div>
+          <h3>Zero Dependencies</h3>
+          <p>Pure HTML, CSS, and JavaScript — runs entirely in your browser, no server needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <div class="footer-glow"></div>
+    <div class="footer-content">
+      <span class="brand-icon">◈</span>
+      <p>ANTIGRAVITY TSP SOLVER &mdash; Charting optimal paths through the cosmos.</p>
+      <p class="footer-sub">Built with ♥ and Dynamic Programming</p>
+    </div>
+  </footer>
+
+  <!-- Solver Modal -->
+  <div id="solver-modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal glass-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeSolverModal()">✕</button>
+      <h2 class="gradient-text">TSP Solver</h2>
+      <p class="modal-desc">Enter a distance matrix (comma-separated rows, one per line):</p>
+      <textarea id="matrix-input" placeholder="0, 10, 15, 20
+10, 0, 35, 25
+15, 35, 0, 30
+20, 25, 30, 0"></textarea>
+      <button class="btn-launch modal-solve" onclick="solveTSP()">
+        <span class="btn-icon">⚡</span>
+        <span>Solve</span>
+      </button>
+      <div id="solver-result" class="solver-result"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
